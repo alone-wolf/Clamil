@@ -151,5 +151,5 @@ class Clamil:
 
 if __name__ == '__main__':
     c = Clamil()
-    # c.c.set_base_config()
+    # c.clamilConfig.set_base_config("","")
     c.resolve()
