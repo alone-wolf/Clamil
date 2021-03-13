@@ -97,7 +97,9 @@ class Clamil:
         self._clean()
 
     def _read(self):
+        print("Yaml files - downloading...")
         for i in range(len(self._sub_urls)):
+            print("{} {}".format(self._sub_urls[i].site_name, self._sub_urls[i].sub_name))
             try:
                 r = requests.get(self._sub_urls[i].sub_url, headers=self._headers)
                 with open(self._sub_urls[i].tmp_store_path, 'w', encoding='utf-8') as f:
@@ -106,8 +108,10 @@ class Clamil:
             except Exception as e:
                 print(e)
                 exit(-1)
+        print("Yaml files - download done!")
 
     def _yamly(self):
+        print("Yaml files - loading...")
         for i in range(len(self._sub_urls)):
             with open(self._sub_urls[i].tmp_store_path, 'r', encoding='utf-8') as f:
                 yaml_tmp = yaml.safe_load(f)
@@ -118,24 +122,31 @@ class Clamil:
                 b = yaml_tmp.get("rules")
                 self._config["rules"].extend(b)
         self._config["rules"] = list(set(self._config["rules"]))
+        print("Yaml files - load done!")
 
     def _override(self):
+        print("Yaml files - merging...")
         for i in self.clamilConfig.clamil_config.keys():
             if i not in self.clamilConfig.clamil_config.get("skip_key"):
                 if i == "proxies" or i == "rules":
                     self._config[i].extend(self.clamilConfig.clamil_config[i])
                 else:
                     self._config[i] = self.clamilConfig.clamil_config[i]
+        print("Yaml files - merge done!")
 
     def _write(self):
+        print("Yaml file - writing...")
         new_config_file_full_name = "{}/{}.yaml".format(os.getcwd(), "config")
         if os.path.exists(new_config_file_full_name):
             os.remove(new_config_file_full_name)
         yaml_dump(new_config_file_full_name, self._config)
+        print("Yaml file - write done!")
 
     def _clean(self):
+        print("Yaml files - cleaning...")
         for i in self._sub_urls:
             os.remove(i.tmp_store_path)
+        print("Yaml files - clean done!")
 
 
 if __name__ == '__main__':
