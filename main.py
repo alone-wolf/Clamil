@@ -14,6 +14,13 @@ def yaml_dump(path, data):
         yaml.dump(data, f, default_flow_style=False, encoding='utf-8', allow_unicode=True)
 
 
+def get_attr_from_dict_list(dl: list, key: str):
+    a = []
+    for i in dl:
+        a.append(i.get(key))
+    return a
+
+
 class SubUrlNode:
     def __init__(self, site_name, sub_name, sub_url: str):
         self.site_name = site_name
@@ -27,11 +34,11 @@ class ClamilConfig:
         "version": "1.0",
         "port": 7890,
         "socks_port": 7891,
-        "allow_lan": True,
+        "allow-lan": True,
         "udp": True,
         "mixed-port": 7893,
         "ipv6": False,
-        "mode": "Rule",
+        "mode": "Global",
         "log-level": "info",
         "external-controller": "0.0.0.0:9090",
         "subs": [
@@ -47,7 +54,12 @@ class ClamilConfig:
         ],
         "skip_key": [
             "version", "subs", "skip_key"
-        ]
+        ],
+        # "proxy-groups": [{
+        #     "name": "Proxies",
+        #     "type": "select",
+        #     "proxies": []
+        # }]
     }
     _clamil_config_path = "{}/clamil.yaml".format(os.getcwd())
 
@@ -119,19 +131,20 @@ class Clamil:
                 for ii in range(len(a)):
                     a[ii]["name"] = "{}-{}".format(self._sub_urls[i].sub_name, a[ii]["name"])
                 self._config["proxies"].extend(a)
-                b = yaml_tmp.get("rules")
-                self._config["rules"].extend(b)
-        self._config["rules"] = list(set(self._config["rules"]))
+                # b = yaml_tmp.get("rules")
+                # self._config["rules"].extend(b)
+        # self._config["rules"] = list(set(self._config["rules"]))
         print("Yaml files - load done!")
 
     def _override(self):
         print("Yaml files - merging...")
         for i in self.clamilConfig.clamil_config.keys():
             if i not in self.clamilConfig.clamil_config.get("skip_key"):
-                if i == "proxies" or i == "rules":
-                    self._config[i].extend(self.clamilConfig.clamil_config[i])
-                else:
-                    self._config[i] = self.clamilConfig.clamil_config[i]
+                # if i == "proxies" or i == "rules":
+                #     self._config[i].extend(self.clamilConfig.clamil_config[i])
+                # else:
+                self._config[i] = self.clamilConfig.clamil_config[i]
+        # self._config["proxy-groups"][0]["proxies"] = get_attr_from_dict_list(self._config.get("proxies"), "name")
         print("Yaml files - merge done!")
 
     def _write(self):
